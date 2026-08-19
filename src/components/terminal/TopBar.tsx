@@ -1,12 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Search } from "lucide-react";
 
+import { ThemeToggle } from "./ThemeToggle";
+
 const nav = [
-  { label: "Dashboard", to: "/" as const },
+  { label: "Live", to: "/" as const },
   { label: "Strategies", to: "/strategies" as const },
+  { label: "Positions", to: "/positions" as const },
+  { label: "Typography", to: "/typography" as const },
 ];
 
-export function TopBar({ active }: { active: "Dashboard" | "Strategies" }) {
+export type TopBarTab = (typeof nav)[number]["label"];
+
+export function TopBar({ active }: { active: TopBarTab }) {
   return (
     <header className="sticky top-0 z-20 border-b border-hairline bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-6 px-5">
@@ -14,7 +20,7 @@ export function TopBar({ active }: { active: "Dashboard" | "Strategies" }) {
           Maxx<span className="text-profit">Algo</span>
         </span>
 
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-1 overflow-x-auto">
           {nav.map((item) => (
             <Link
               key={item.label}
@@ -30,7 +36,7 @@ export function TopBar({ active }: { active: "Dashboard" | "Strategies" }) {
           ))}
         </nav>
 
-        <label className="ml-auto flex h-8 w-64 items-center gap-2 rounded border border-hairline bg-surface-2 px-2.5">
+        <label className="ml-auto hidden h-8 w-64 md:flex items-center gap-2 rounded border border-hairline bg-surface-2 px-2.5">
           <Search className="size-3.5 text-muted-foreground" aria-hidden />
           <input
             placeholder="Search symbols"
@@ -50,6 +56,7 @@ export function TopBar({ active }: { active: "Dashboard" | "Strategies" }) {
             <span className="size-1.5 rounded-full bg-profit" />
             3 BROKERS LIVE
           </span>
+          <ThemeToggle />
           <button
             aria-label="Notifications"
             className="grid size-8 place-items-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground"
