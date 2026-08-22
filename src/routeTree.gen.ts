@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PositionsRouteImport } from './routes/positions'
 import { Route as ResolutionRouteImport } from './routes/resolution'
 import { Route as StrategiesRouteImport } from './routes/strategies'
+import { Route as StyleguideRouteImport } from './routes/styleguide'
 import { Route as TypographyRouteImport } from './routes/typography'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const StrategiesRoute = StrategiesRouteImport.update({
   path: '/strategies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StyleguideRoute = StyleguideRouteImport.update({
+  id: '/styleguide',
+  path: '/styleguide',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TypographyRoute = TypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
+  '/styleguide': typeof StyleguideRoute
   '/typography': typeof TypographyRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
+  '/styleguide': typeof StyleguideRoute
   '/typography': typeof TypographyRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
+  '/styleguide': typeof StyleguideRoute
   '/typography': typeof TypographyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/positions' | '/resolution' | '/strategies' | '/typography'
+  fullPaths:
+    | '/'
+    | '/positions'
+    | '/resolution'
+    | '/strategies'
+    | '/styleguide'
+    | '/typography'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/positions' | '/resolution' | '/strategies' | '/typography'
+  to:
+    | '/'
+    | '/positions'
+    | '/resolution'
+    | '/strategies'
+    | '/styleguide'
+    | '/typography'
   id:
     | '__root__'
     | '/'
     | '/positions'
     | '/resolution'
     | '/strategies'
+    | '/styleguide'
     | '/typography'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   PositionsRoute: typeof PositionsRoute
   ResolutionRoute: typeof ResolutionRoute
   StrategiesRoute: typeof StrategiesRoute
+  StyleguideRoute: typeof StyleguideRoute
   TypographyRoute: typeof TypographyRoute
 }
 
@@ -115,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StrategiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/styleguide': {
+      id: '/styleguide'
+      path: '/styleguide'
+      fullPath: '/styleguide'
+      preLoaderRoute: typeof StyleguideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/typography': {
       id: '/typography'
       path: '/typography'
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   PositionsRoute: PositionsRoute,
   ResolutionRoute: ResolutionRoute,
   StrategiesRoute: StrategiesRoute,
+  StyleguideRoute: StyleguideRoute,
   TypographyRoute: TypographyRoute,
 }
 export const routeTree = rootRouteImport
