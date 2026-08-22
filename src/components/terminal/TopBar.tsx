@@ -9,6 +9,7 @@ const nav = [
   { label: "Positions", to: "/positions" as const },
   { label: "Resolution", to: "/resolution" as const },
   { label: "Typography", to: "/typography" as const },
+  { label: "Style guide", to: "/styleguide" as const },
 ];
 
 export type TopBarTab = (typeof nav)[number]["label"];
