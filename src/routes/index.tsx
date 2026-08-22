@@ -96,7 +96,7 @@ function LiveAnalytics() {
 
   return (
     <div className="min-h-screen bg-surface-2 font-sans">
-      <TopBar active="Dashboard" />
+      <TopBar active="Live" />
 
       <main className="mx-auto max-w-[1600px] px-5 py-6">
         <div className="flex flex-wrap items-end justify-between gap-4">

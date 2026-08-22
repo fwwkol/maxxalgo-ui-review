@@ -7,6 +7,7 @@ const nav = [
   { label: "Live", to: "/" as const },
   { label: "Strategies", to: "/strategies" as const },
   { label: "Positions", to: "/positions" as const },
+  { label: "Resolution", to: "/resolution" as const },
   { label: "Typography", to: "/typography" as const },
 ];
 
