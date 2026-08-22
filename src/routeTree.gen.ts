@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PositionsRouteImport } from './routes/positions'
+import { Route as ResolutionRouteImport } from './routes/resolution'
 import { Route as StrategiesRouteImport } from './routes/strategies'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const PositionsRoute = PositionsRouteImport.update({
   path: '/positions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResolutionRoute = ResolutionRouteImport.update({
+  id: '/resolution',
+  path: '/resolution',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StrategiesRoute = StrategiesRouteImport.update({
   id: '/strategies',
   path: '/strategies',
@@ -32,30 +38,34 @@ const StrategiesRoute = StrategiesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/positions': typeof PositionsRoute
+  '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/positions': typeof PositionsRoute
+  '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/positions': typeof PositionsRoute
+  '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/positions' | '/strategies'
+  fullPaths: '/' | '/positions' | '/resolution' | '/strategies'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/positions' | '/strategies'
-  id: '__root__' | '/' | '/positions' | '/strategies'
+  to: '/' | '/positions' | '/resolution' | '/strategies'
+  id: '__root__' | '/' | '/positions' | '/resolution' | '/strategies'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PositionsRoute: typeof PositionsRoute
+  ResolutionRoute: typeof ResolutionRoute
   StrategiesRoute: typeof StrategiesRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PositionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resolution': {
+      id: '/resolution'
+      path: '/resolution'
+      fullPath: '/resolution'
+      preLoaderRoute: typeof ResolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/strategies': {
       id: '/strategies'
       path: '/strategies'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PositionsRoute: PositionsRoute,
+  ResolutionRoute: ResolutionRoute,
   StrategiesRoute: StrategiesRoute,
 }
 export const routeTree = rootRouteImport
