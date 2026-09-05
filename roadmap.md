@@ -1,4 +1,5 @@
 # Task roadmap
 
-- [ ] Finish the two-tone orange design pass across shared tokens and terminal reference screens.
-- [ ] Verify the live preview and confirm repository delivery status.
+- [x] Two-tone orange design pass across shared tokens, docs and terminal reference screens.
+- [x] Verified light/dark and phone renders in the live preview.
+- [x] Mobile application layout for Openbull at /mobile (tab bar, stacked cards, exit confirmation).

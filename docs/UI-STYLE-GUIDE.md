@@ -21,26 +21,30 @@ Live reference: `/styleguide` · type spec: `/typography`
 ## 2. Colour tokens
 
 Defined in `src/styles.css` (`:root` + `.dark`), mapped in `@theme inline`.
-Never write `text-white`, `bg-black`, or hex values in components.
+The palette is deliberately two-tone: a neutral warm-grey foundation plus a single
+orange signal (`--accent-orange`). Never write `text-white`, `bg-black`, or hex values.
 
 | Token | Utility | Light | Dark | Use |
 | --- | --- | --- | --- | --- |
-| `--background` | `bg-background` | `oklch(1 0 0)` | `oklch(0.145 0.01 258)` | Page canvas |
-| `--surface` | `bg-surface` | `oklch(1 0 0)` | `oklch(0.19 0.012 258)` | Panels, cards, top bar |
-| `--surface-2` | `bg-surface-2` | `oklch(0.982 0.004 250)` | `oklch(0.23 0.014 258)` | Table heads, row hover, inputs |
-| `--hairline` | `border-hairline` | `oklch(0.918 0.008 250)` | `oklch(0.3 0.016 258)` | Every divider and panel border |
-| `--foreground` | `text-foreground` | `oklch(0.129 …)` | `oklch(0.984 …)` | Primary text, identities, values |
-| `--muted-foreground` | `text-muted-foreground` | `oklch(0.554 …)` | `oklch(0.72 0.02 258)` | Labels, metadata, captions |
-| `--profit` | `text-profit` | `oklch(0.62 0.15 158)` | `oklch(0.76 0.16 158)` | Gains, live/healthy state |
-| `--loss` | `text-loss` | `oklch(0.6 0.21 22)` | `oklch(0.7 0.19 22)` | Losses, destructive actions |
-| `--warn` | `text-warn` | `oklch(0.72 0.15 75)` | `oklch(0.82 0.15 82)` | Sandbox, rejections, no-bid |
-| `--primary` | `bg-primary` | near-black | near-white | Avatar, single primary CTA |
+| `--background` | `bg-background` | `oklch(1 0 0)` | `oklch(0.13 0.012 55)` | Page canvas |
+| `--surface` | `bg-surface` | `oklch(1 0 0)` | `oklch(0.18 0.012 55)` | Panels, cards, top bar |
+| `--surface-2` | `bg-surface-2` | `oklch(0.97 0.006 70)` | `oklch(0.23 0.016 55)` | Table heads, row hover, inputs |
+| `--hairline` | `border-hairline` | `oklch(0.88 0.012 70)` | `oklch(0.34 0.02 55)` | Every divider and panel border |
+| `--foreground` | `text-foreground` | `oklch(0.16 0.018 55)` | `oklch(0.96 0.008 70)` | Primary text, identities, values |
+| `--muted-foreground` | `text-muted-foreground` | `oklch(0.46 0.018 55)` | `oklch(0.72 0.025 70)` | Labels, metadata, captions |
+| `--accent-orange` | — | `oklch(0.68 0.17 55)` | same | The one signal hue |
+| `--profit` / `--loss` / `--warn` | `text-profit` / `text-loss` / `text-warn` | orange | orange | Financial and status signal |
+| `--primary` | `bg-primary` | orange | orange | Avatar, focus ring, single primary CTA |
 
 Semantic pairings (fixed, do not improvise):
 
-- gain → `text-profit`; loss → `text-loss`; flat → `text-muted-foreground` + `—`
+- gain, loss and warning all render in the orange signal; flat → `text-muted-foreground` + `—`
 - tinted container → `border-<token>/40 bg-<token>/10 text-<token>` at 10 % / 40 % only
-- never use `profit` green for a non-financial success state, or `chart-*` tokens for P&L
+- because there is one hue, meaning must come from the sign (`+`/`-`), the label and the
+  chip text — colour is never the only signal
+- keep `text-profit` / `text-loss` / `text-warn` in components rather than a raw accent
+  utility, so intent stays readable and a future re-hue is a one-line token change
+
 
 ### Dark mode
 
