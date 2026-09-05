@@ -12,11 +12,14 @@ import {
 
 import { TopBar } from "@/components/terminal/TopBar";
 import {
+  AndroidGestureBar,
+  AndroidStatusBar,
   MobileCard,
   MobileTabBar,
   MobileTopBar,
   type MobileTab,
 } from "@/components/terminal/MobileShell";
+import { MobileLogin } from "@/components/terminal/MobileLogin";
 import {
   groupByStrategy,
   inr,
@@ -299,6 +302,7 @@ function MoreTab() {
 function MobileLayoutPage() {
   const [tab, setTab] = useState<MobileTab>("Live");
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
 
   return (
     <div className="min-h-screen bg-surface-2">
@@ -306,26 +310,46 @@ function MobileLayoutPage() {
         <TopBar active="Mobile" />
       </div>
 
-      <div className="mx-auto w-full max-w-[420px] md:my-6 md:overflow-hidden md:rounded-2xl md:border md:border-hairline md:shadow-sm">
-        <div className="flex min-h-screen flex-col bg-background md:min-h-[760px]">
-          <MobileTopBar eyebrow="Openbull / Mobile" title={tab} />
+      <div className="mx-auto w-full max-w-[400px] md:my-6 md:overflow-hidden md:rounded-[28px] md:border-4 md:border-foreground/80 md:shadow-xl">
+        <div className="flex min-h-screen flex-col bg-background md:min-h-[800px]">
+          <AndroidStatusBar />
 
-          <main className="flex-1 px-3 py-3">
-            {tab === "Live" && <LiveTab onExit={setConfirm} />}
-            {tab === "Positions" && <PositionsTab onExit={setConfirm} />}
-            {tab === "Strategies" && <StrategiesTab />}
-            {tab === "More" && <MoreTab />}
+          {!signedIn ? (
+            <div className="flex flex-1 flex-col">
+              <MobileLogin onSignIn={() => setSignedIn(true)} />
+            </div>
+          ) : (
+            <>
+              <MobileTopBar eyebrow="Openbull / Mobile" title={tab} />
 
-            <p className="mt-4 font-mono text-[10px] leading-relaxed text-muted-foreground">
-              Phone layout · wide tables become stacked cards, numbers stay mono and right aligned,
-              every exit asks for confirmation, and the four primary destinations sit in the thumb
-              zone.
-            </p>
-          </main>
+              <main className="flex-1 px-3 py-3">
+                {tab === "Live" && <LiveTab onExit={setConfirm} />}
+                {tab === "Positions" && <PositionsTab onExit={setConfirm} />}
+                {tab === "Strategies" && <StrategiesTab />}
+                {tab === "More" && <MoreTab />}
 
-          {confirm ? <ConfirmBar symbol={confirm} onCancel={() => setConfirm(null)} /> : null}
+                <button
+                  type="button"
+                  onClick={() => setSignedIn(false)}
+                  className="mt-4 font-mono text-[10px] uppercase tracking-wide text-muted-foreground underline-offset-2 hover:underline"
+                >
+                  Sign out (back to login screen)
+                </button>
 
-          <MobileTabBar active={tab} onChange={setTab} tabs={tabs} />
+                <p className="mt-3 font-mono text-[10px] leading-relaxed text-muted-foreground">
+                  Android layout · 360dp width, 48dp touch targets, wide tables become stacked
+                  cards, every exit asks for confirmation, and the four primary destinations sit in
+                  the thumb zone.
+                </p>
+              </main>
+
+              {confirm ? <ConfirmBar symbol={confirm} onCancel={() => setConfirm(null)} /> : null}
+
+              <MobileTabBar active={tab} onChange={setTab} tabs={tabs} />
+            </>
+          )}
+
+          <AndroidGestureBar />
         </div>
       </div>
     </div>
