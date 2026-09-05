@@ -34,10 +34,10 @@ const tokens: { name: string; utility: string; swatch: string; use: string }[] =
   { name: "hairline", utility: "border-hairline", swatch: "bg-hairline", use: "Every divider and border" },
   { name: "foreground", utility: "text-foreground", swatch: "bg-foreground", use: "Identities and values" },
   { name: "muted-foreground", utility: "text-muted-foreground", swatch: "bg-muted-foreground", use: "Labels, metadata" },
-  { name: "profit", utility: "text-profit", swatch: "bg-profit", use: "Gains, live / healthy" },
-  { name: "loss", utility: "text-loss", swatch: "bg-loss", use: "Losses, destructive" },
-  { name: "warn", utility: "text-warn", swatch: "bg-warn", use: "Sandbox, rejection, no bid" },
-  { name: "primary", utility: "bg-primary", swatch: "bg-primary", use: "Avatar, single primary CTA" },
+  { name: "accent-orange", utility: "the one signal hue", swatch: "bg-primary", use: "Every status and action colour" },
+  { name: "profit / loss / warn", utility: "text-profit · text-loss · text-warn", swatch: "bg-profit", use: "Financial state, all one orange" },
+  { name: "primary", utility: "bg-primary", swatch: "bg-primary", use: "Avatar, focus ring, single CTA" },
+
 ];
 
 const scale: { role: string; sample: string; cls: string; spec: string }[] = [

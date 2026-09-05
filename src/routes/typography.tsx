@@ -110,7 +110,7 @@ const rows: Row[] = [
     size: "22 / 26",
     weight: "600",
     tracking: "0",
-    token: "profit / loss",
+    token: "orange signal",
     usage: "KPI values. tabular-nums + right aligned, always.",
   },
   {
@@ -132,7 +132,7 @@ const rows: Row[] = [
     size: "10 / 14",
     weight: "500",
     tracking: "0.04em",
-    token: "profit / warn / loss",
+    token: "orange signal",
     usage: "Max one coloured chip per row.",
   },
   {
