@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as PositionsRouteImport } from './routes/positions'
 import { Route as ResolutionRouteImport } from './routes/resolution'
 import { Route as StrategiesRouteImport } from './routes/strategies'
@@ -19,6 +20,11 @@ import { Route as TypographyRouteImport } from './routes/typography'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PositionsRoute = PositionsRouteImport.update({
@@ -49,6 +55,7 @@ const TypographyRoute = TypographyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/mobile': typeof MobileRoute
   '/positions': typeof PositionsRoute
   '/resolution': typeof ResolutionRoute
   '/strategies': typeof StrategiesRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/mobile'
     | '/positions'
     | '/resolution'
     | '/strategies'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/mobile'
     | '/positions'
     | '/resolution'
     | '/strategies'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/mobile'
     | '/positions'
     | '/resolution'
     | '/strategies'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MobileRoute: typeof MobileRoute
   PositionsRoute: typeof PositionsRoute
   ResolutionRoute: typeof ResolutionRoute
   StrategiesRoute: typeof StrategiesRoute
@@ -115,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/positions': {
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MobileRoute: MobileRoute,
   PositionsRoute: PositionsRoute,
   ResolutionRoute: ResolutionRoute,
   StrategiesRoute: StrategiesRoute,
