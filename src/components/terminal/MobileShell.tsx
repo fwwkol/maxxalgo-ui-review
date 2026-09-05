@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Bell, Search } from "lucide-react";
+import { BatteryFull, Bell, Search, Wifi } from "lucide-react";
 
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -106,5 +106,25 @@ export function MobileCard({
       </div>
       {children}
     </section>
+  );
+}
+
+export function AndroidStatusBar() {
+  return (
+    <div className="flex h-6 shrink-0 items-center gap-1.5 bg-surface px-3 font-mono text-[10px] text-muted-foreground">
+      <span className="tabular-nums">9:41</span>
+      <span className="ml-auto">LTE</span>
+      <Wifi className="size-3" aria-hidden />
+      <BatteryFull className="size-3.5" aria-hidden />
+      <span className="tabular-nums">86%</span>
+    </div>
+  );
+}
+
+export function AndroidGestureBar() {
+  return (
+    <div className="flex h-4 shrink-0 items-center justify-center bg-surface">
+      <span className="h-1 w-24 rounded-full bg-muted-foreground/50" />
+    </div>
   );
 }
