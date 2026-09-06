@@ -3,9 +3,6 @@ import { useState } from "react";
 import {
   Activity,
   ArrowLeft,
-  BookOpen,
-  Briefcase,
-  ClipboardCheck,
   ChevronRight,
   Layers,
   LogOut,
