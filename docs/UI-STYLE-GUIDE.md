@@ -21,8 +21,9 @@ Live reference: `/styleguide` · type spec: `/typography`
 ## 2. Colour tokens
 
 Defined in `src/styles.css` (`:root` + `.dark`), mapped in `@theme inline`.
-The palette is deliberately two-tone: a neutral warm-grey foundation plus a single
-orange signal (`--accent-orange`). Never write `text-white`, `bg-black`, or hex values.
+The palette is a neutral warm-grey foundation plus a single orange signal
+(`--accent-orange`) for actions and warnings. Money is the one exception: gains use
+green (`--profit`), losses use red (`--loss`). Never write `text-white`, `bg-black`, or hex values.
 
 | Token | Utility | Light | Dark | Use |
 | --- | --- | --- | --- | --- |
@@ -32,16 +33,17 @@ orange signal (`--accent-orange`). Never write `text-white`, `bg-black`, or hex 
 | `--hairline` | `border-hairline` | `oklch(0.88 0.012 70)` | `oklch(0.34 0.02 55)` | Every divider and panel border |
 | `--foreground` | `text-foreground` | `oklch(0.16 0.018 55)` | `oklch(0.96 0.008 70)` | Primary text, identities, values |
 | `--muted-foreground` | `text-muted-foreground` | `oklch(0.46 0.018 55)` | `oklch(0.72 0.025 70)` | Labels, metadata, captions |
-| `--accent-orange` | — | `oklch(0.68 0.17 55)` | same | The one signal hue |
-| `--profit` / `--loss` / `--warn` | `text-profit` / `text-loss` / `text-warn` | orange | orange | Financial and status signal |
+| `--accent-orange` | — | `oklch(0.68 0.17 55)` | same | Actions, focus, warnings |
+| `--profit` | `text-profit` | `oklch(0.52 0.14 150)` | `oklch(0.74 0.16 152)` | Gains, positive P&L |
+| `--loss` | `text-loss` | `oklch(0.53 0.19 27)` | `oklch(0.68 0.19 25)` | Losses, negative P&L, exits |
+| `--warn` | `text-warn` | orange | orange | Risk, rejection, paused |
 | `--primary` | `bg-primary` | orange | orange | Avatar, focus ring, single primary CTA |
 
 Semantic pairings (fixed, do not improvise):
 
-- gain, loss and warning all render in the orange signal; flat → `text-muted-foreground` + `—`
+- P&L, net/gross, day change, holdings gain: green up, red down; flat → `text-muted-foreground` + `—`
 - tinted container → `border-<token>/40 bg-<token>/10 text-<token>` at 10 % / 40 % only
-- because there is one hue, meaning must come from the sign (`+`/`-`), the label and the
-  chip text — colour is never the only signal
+- colour is never the only signal: always keep the sign (`+`/`-`) and the label
 - keep `text-profit` / `text-loss` / `text-warn` in components rather than a raw accent
   utility, so intent stays readable and a future re-hue is a one-line token change
 
