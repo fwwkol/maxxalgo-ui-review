@@ -35,7 +35,8 @@ const tokens: { name: string; utility: string; swatch: string; use: string }[] =
   { name: "foreground", utility: "text-foreground", swatch: "bg-foreground", use: "Identities and values" },
   { name: "muted-foreground", utility: "text-muted-foreground", swatch: "bg-muted-foreground", use: "Labels, metadata" },
   { name: "accent-orange", utility: "the one signal hue", swatch: "bg-primary", use: "Every status and action colour" },
-  { name: "profit / loss / warn", utility: "text-profit · text-loss · text-warn", swatch: "bg-profit", use: "Financial state, all one orange" },
+  { name: "profit / loss", utility: "text-profit · text-loss", swatch: "bg-profit", use: "Money in and out: green gain, red loss" },
+  { name: "warn", utility: "text-warn", swatch: "bg-warn", use: "Risk and rejection warnings (orange)" },
   { name: "primary", utility: "bg-primary", swatch: "bg-primary", use: "Avatar, focus ring, single CTA" },
 
 ];
