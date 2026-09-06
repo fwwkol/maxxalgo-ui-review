@@ -112,8 +112,8 @@
 }
 
 .dark {
-  --profit: var(--accent-orange);
-  --loss: var(--accent-orange);
+  --profit: oklch(0.74 0.16 152);
+  --loss: oklch(0.68 0.19 25);
   --warn: var(--accent-orange);
   --surface: oklch(0.18 0.012 55);
   --surface-2: oklch(0.23 0.016 55);
