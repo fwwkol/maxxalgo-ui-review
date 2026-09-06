@@ -71,8 +71,8 @@
 :root {
   --radius: 0.375rem;
   --accent-orange: oklch(0.68 0.17 55);
-  --profit: var(--accent-orange);
-  --loss: var(--accent-orange);
+  --profit: oklch(0.52 0.14 150);
+  --loss: oklch(0.53 0.19 27);
   --warn: var(--accent-orange);
   --surface: oklch(1 0 0);
   --surface-2: oklch(0.97 0.006 70);
