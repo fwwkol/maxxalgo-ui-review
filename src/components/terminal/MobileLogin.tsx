@@ -13,7 +13,7 @@ export function MobileLogin({ onSignIn }: { onSignIn: () => void }) {
           Maxx<span className="text-profit">Algo</span>
         </span>
         <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          Openbull terminal · Android
+          Trading terminal · Android
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function MobileLogin({ onSignIn }: { onSignIn: () => void }) {
       <div className="mt-auto pt-8">
         <span className="flex items-center gap-2 rounded border border-hairline bg-surface-2 px-3 py-2 font-mono text-[10px] text-muted-foreground">
           <Server className="size-3.5 shrink-0" aria-hidden />
-          <span className="min-w-0 flex-1 truncate">Server: openbull-dev.shares.zrok.io</span>
+          <span className="min-w-0 flex-1 truncate">Server: terminal.example.com</span>
           <span className="shrink-0 text-profit">Change</span>
         </span>
         <p className="mt-3 font-mono text-[9px] leading-relaxed text-muted-foreground">
