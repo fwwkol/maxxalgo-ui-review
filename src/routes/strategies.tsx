@@ -197,10 +197,10 @@ function StrategiesPage() {
         </div>
 
         <div className="mt-4 overflow-hidden rounded-lg border border-hairline bg-surface">
-          <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-hairline bg-surface-2 px-4 py-2 font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
+          <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-hairline bg-surface-2 px-4 py-2 font-mono text-[10px] tracking-[0.14em] text-muted-foreground sm:grid-cols-[1fr_auto_auto]">
             <span>STRATEGY</span>
             <span className="text-right">P&L TODAY</span>
-            <span className="w-[220px] text-right">ACTIONS</span>
+            <span className="hidden w-[220px] text-right sm:block">ACTIONS</span>
           </div>
 
           {groups.map(([underlying, rows]) => {
@@ -227,7 +227,7 @@ function StrategiesPage() {
                 {rows.map((s) => (
                   <div
                     key={s.id}
-                    className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-hairline px-4 py-2.5 last:border-b-0 hover:bg-surface-2/60"
+                    className="grid grid-cols-1 items-center gap-2 border-b border-hairline px-4 py-2.5 last:border-b-0 hover:bg-surface-2/60 sm:grid-cols-[1fr_auto_auto] sm:gap-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <span
@@ -239,13 +239,13 @@ function StrategiesPage() {
                       <span className="truncate font-mono text-[13px] font-medium text-foreground">
                         {s.name}
                       </span>
-                      <span className="font-mono text-[11px] text-muted-foreground">#{s.id}</span>
-                      <span className="truncate font-mono text-[10px] tracking-wide text-muted-foreground">
+                      <span className="hidden font-mono text-[11px] text-muted-foreground sm:inline">#{s.id}</span>
+                      <span className="hidden truncate font-mono text-[10px] tracking-wide text-muted-foreground sm:inline">
                         {s.kind} · {s.horizon} · {s.broker}
                       </span>
                     </div>
                     <PnL value={s.pnl} legs={s.legs} />
-                    <div className="flex w-[220px] justify-end">
+                    <div className="flex w-full justify-end sm:w-[220px]">
                       <RowActions status={s.status} />
                     </div>
                   </div>

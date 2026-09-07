@@ -152,19 +152,19 @@ function LiveAnalytics() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-[86px_1fr_110px_120px_130px_90px] items-center gap-3 border-b border-hairline px-4 py-2 font-mono text-[10px] tracking-[0.14em] text-muted-foreground">
+          <div className="grid grid-cols-[74px_minmax(0,1fr)_72px] items-center gap-3 border-b border-hairline px-4 py-2 font-mono text-[10px] tracking-[0.14em] text-muted-foreground sm:grid-cols-[86px_1fr_110px_120px_130px_90px]">
             <span>STATUS</span>
             <span>STRATEGY</span>
-            <span className="text-right">LEGS</span>
-            <span className="text-right">UNREALIZED</span>
+            <span className="hidden text-right sm:block">LEGS</span>
+            <span className="hidden text-right sm:block">UNREALIZED</span>
             <span className="text-right">P&L TODAY</span>
-            <span className="text-right">ACTION</span>
+            <span className="hidden text-right sm:block">ACTION</span>
           </div>
 
           {rows.map((s) => (
             <div
               key={s.id}
-              className="grid grid-cols-[86px_1fr_110px_120px_130px_90px] items-center gap-3 border-b border-hairline px-4 py-2 last:border-b-0 hover:bg-surface-2/60"
+              className="grid grid-cols-[74px_minmax(0,1fr)_72px] items-center gap-3 border-b border-hairline px-4 py-2 last:border-b-0 hover:bg-surface-2/60 sm:grid-cols-[86px_1fr_110px_120px_130px_90px]"
             >
               <span
                 className={`rounded border px-1.5 py-0.5 text-center font-mono text-[10px] font-medium ${statusStyle[s.status]}`}
@@ -180,11 +180,11 @@ function LiveAnalytics() {
                   {s.underlying} · {s.horizon}
                 </span>
               </div>
-              <span className="text-right font-mono text-[12px] tabular-nums text-muted-foreground">
+              <span className="hidden text-right font-mono text-[12px] tabular-nums text-muted-foreground sm:block">
                 {s.legs === 0 ? "—" : s.legs}
               </span>
               <span
-                className={`text-right font-mono text-[12px] tabular-nums ${
+                className={`hidden text-right font-mono text-[12px] tabular-nums sm:block ${
                   s.pnl > 0 ? "text-profit" : s.pnl < 0 ? "text-loss" : "text-muted-foreground/60"
                 }`}
               >
@@ -197,7 +197,7 @@ function LiveAnalytics() {
               >
                 {s.pnl === 0 ? "—" : inr(s.pnl)}
               </span>
-              <div className="flex justify-end">
+              <div className="hidden justify-end sm:flex">
                 {s.status === "IN POS" ? (
                   <button className="h-7 rounded border border-loss/40 bg-loss/10 px-2 font-mono text-[11px] font-medium text-loss hover:bg-loss/20">
                     EXIT
