@@ -167,16 +167,16 @@ function ResolutionPage() {
           )}
 
           <div
-            className={`grid ${COLS} gap-3 border-b border-hairline px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground`}
+            className={`grid grid-cols-[24px_minmax(0,1fr)_72px] gap-3 border-b border-hairline px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground sm:${COLS}`}
           >
             <span>Leg</span>
             <span>Strike</span>
-            <span className="text-right">Qty</span>
+            <span className="hidden text-right sm:block">Qty</span>
             <span className="text-right">LTP</span>
-            <span className="text-right">Bid</span>
-            <span className="text-right">Ask</span>
-            <span className="text-right">Order</span>
-            <span className="text-right">Status</span>
+            <span className="hidden text-right sm:block">Bid</span>
+            <span className="hidden text-right sm:block">Ask</span>
+            <span className="hidden text-right sm:block">Order</span>
+            <span className="hidden text-right sm:block">Status</span>
           </div>
 
           {legs.map((l) => (
