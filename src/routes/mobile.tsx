@@ -21,6 +21,7 @@ import {
   type MobileTab,
 } from "@/components/terminal/MobileShell";
 import { MobileLogin } from "@/components/terminal/MobileLogin";
+import { AccountWorkspace, StrategyWorkspace, type MobileScreen } from "@/components/terminal/MobileManagementScreens";
 import {
   groupByStrategy,
   inr,
@@ -234,37 +235,11 @@ function PositionsTab({ onExit }: { onExit: (symbol: string) => void }) {
 }
 
 function StrategiesTab() {
-  return (
-    <MobileCard title="All strategies" meta={`${strategies.length} total`}>
-      {strategies.map((s) => (
-        <button
-          key={s.id}
-          type="button"
-          className="flex w-full items-center gap-2 border-b border-hairline px-3 py-2.5 text-left last:border-b-0 hover:bg-surface-2/60"
-        >
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-mono text-[13px] font-medium text-foreground">{s.name}</p>
-            <p className="truncate font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
-              #{s.id} · {s.underlying} · {s.horizon}
-            </p>
-          </div>
-          <span
-            className={`shrink-0 rounded border px-1.5 py-0.5 font-mono text-[9px] font-medium ${statusChip[s.status]}`}
-          >
-            {s.status}
-          </span>
-          <span className={`w-[78px] shrink-0 text-right font-mono text-[12px] tabular-nums ${pnlClass(s.pnl)}`}>
-            {pnlText(s.pnl)}
-          </span>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-        </button>
-      ))}
-    </MobileCard>
-  );
+  return <StrategyWorkspace initialRows={strategies} onExit={() => undefined} />;
 }
 
 
-type Screen = "Resolution" | "Order book" | "Holdings";
+type Screen = "Resolution" | "Order book" | "Holdings" | MobileScreen;
 
 const orders = [
   { id: "OB-24191", symbol: "NIFTY 24200 CE", side: "SELL", qty: 750, price: 138.4, status: "FILLED", time: "09:20:14" },
@@ -442,8 +417,9 @@ function MoreTab({ onOpen }: { onOpen: (screen: Screen) => void }) {
     { label: "Holdings", screen: "Holdings" },
     { label: "Trade book" },
     { label: "Option chain" },
-    { label: "Broker connections" },
-    { label: "Notifications" },
+    { label: "Broker accounts", screen: "Broker Accounts" },
+    { label: "Notifications", screen: "Notifications" },
+    { label: "Settings", screen: "Settings" },
     { label: "Risk limits" },
   ];
   return (
@@ -510,6 +486,8 @@ function MobileLayoutPage() {
                   <OrderBookScreen onBack={() => setScreen(null)} />
                 ) : screen === "Holdings" ? (
                   <HoldingsScreen onBack={() => setScreen(null)} />
+                ) : screen === "Settings" || screen === "Notifications" || screen === "Broker Accounts" ? (
+                  <AccountWorkspace screen={screen} onBack={() => setScreen(null)} />
                 ) : (
                   <>
                     {tab === "Live" && <LiveTab onExit={setConfirm} />}
