@@ -1,10 +1,33 @@
-import { useState, type ReactNode } from "react";
-import { ArrowLeft, Check, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import {
+  ArrowLeft,
+  BarChart3,
+  BellRing,
+  Check,
+  Copy,
+  Ellipsis,
+  Eye,
+  LogOut,
+  Pause,
+  Pencil,
+  Play,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { MobileCard } from "./MobileShell";
-import type { Strategy } from "@/lib/mock-data";
+import { groupByUnderlying, inr, type Strategy } from "@/lib/mock-data";
 
 type MobileScreen = "Settings" | "Notifications" | "Broker Accounts";
+type StrategyView = "all" | "detail" | "form" | "builder" | "analytics" | "alerts";
+type ConfirmAction = { kind: "exit" | "exit-all" | "delete"; strategy?: Strategy };
 const inputClass = "h-10 w-full rounded border border-hairline bg-background px-3 font-mono text-[11px] text-foreground";
+const statusClass: Record<Strategy["status"], string> = {
+  "IN POS": "border-profit/40 bg-profit/10 text-profit",
+  IDLE: "border-hairline bg-surface-2 text-muted-foreground",
+  PAUSED: "border-warn/40 bg-warn/10 text-warn",
+};
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return <label className="block min-w-0 space-y-1.5"><span className="font-mono text-[9px] uppercase tracking-wide text-muted-foreground">{label}</span>{children}</label>;
@@ -19,7 +42,11 @@ function Toggle({ label, initial = false }: { label: string; initial?: boolean }
   return <label className="flex min-h-11 items-center gap-3 border-b border-hairline px-3 last:border-0"><span className="min-w-0 flex-1 font-mono text-[10px] text-foreground">{label}</span><input type="checkbox" checked={value} onChange={(event) => setValue(event.target.checked)} className="size-4 accent-primary" /></label>;
 }
 
-function StrategyForm({ existing, onCancel, onSave }: { existing?: Strategy | undefined; onCancel: () => void; onSave: (strategy: Strategy) => void }) {
+function StatusBadge({ status }: { status: Strategy["status"] }) {
+  return <span className={`shrink-0 rounded border px-1.5 py-0.5 font-mono text-[9px] ${statusClass[status]}`}>{status}</span>;
+}
+
+function StrategyForm({ existing, onCancel, onSave }: { existing?: Strategy; onCancel: () => void; onSave: (strategy: Strategy) => void }) {
   const [name, setName] = useState(existing?.name ?? "");
   const [kind, setKind] = useState<Strategy["kind"]>(existing?.kind ?? "BATCH");
   const [underlying, setUnderlying] = useState(existing?.underlying ?? "NIFTY");
@@ -37,8 +64,8 @@ function StrategyForm({ existing, onCancel, onSave }: { existing?: Strategy | un
   </MobileCard></div>;
 }
 
-function LegBuilder({ strategy, onBack, onSave }: { strategy: Strategy; onBack: () => void; onSave: () => void }) {
-  const [legCount, setLegCount] = useState(4);
+function LegBuilder({ strategy, onBack, onSave }: { strategy: Strategy; onBack: () => void; onSave: (legCount: number) => void }) {
+  const [legCount, setLegCount] = useState(Math.max(strategy.legs, 1));
   return <div className="space-y-3"><Back title="Leg builder" onBack={onBack} />
     <MobileCard title={strategy.name} meta="CONFIGURE">
       <div className="space-y-3 p-3"><div className="flex gap-2 overflow-x-auto">{["INDEX", "COMMODITY", "CRYPTO", "EQUITY"].map((item, index) => <button type="button" key={item} className={`shrink-0 rounded border px-2.5 py-2 font-mono text-[9px] ${index === 0 ? "border-primary bg-primary/10 text-primary" : "border-hairline text-muted-foreground"}`}>{item}</button>)}</div>
@@ -53,22 +80,57 @@ function LegBuilder({ strategy, onBack, onSave }: { strategy: Strategy; onBack: 
     <MobileCard title="Current resolution" meta={`${legCount} LEGS`}><div className="p-3 font-mono text-[10px] text-muted-foreground">{strategy.underlying} · Current expiry · strike selection is ready to configure.</div></MobileCard>
     <MobileCard title="Strike routing"><div className="space-y-2 p-3"><Toggle label="Automatically reroute unavailable strikes" initial /><Field label="Routing mode"><select className={inputClass}><option>Nearest available strike</option><option>Preserve premium range</option><option>Disable rerouting</option></select></Field></div></MobileCard>
     <MobileCard title="Global risk"><div className="grid grid-cols-2 gap-2 p-3">{["Overall stop loss", "Overall target", "Trail stop loss", "Lock profit", "Entry gating", "Square-off override"].map((label) => <Field key={label} label={label}><input className={inputClass} placeholder="Not set" /></Field>)}</div></MobileCard>
-    <div className="grid grid-cols-2 gap-2"><button type="button" onClick={onBack} className="h-10 rounded border border-hairline font-mono text-[10px] uppercase text-foreground">Cancel</button><button type="button" onClick={onSave} className="h-10 rounded bg-primary font-mono text-[10px] uppercase text-primary-foreground"><Check className="mr-1 inline size-3" /> Save strategy</button></div><button type="button" onClick={onSave} className="h-9 w-full rounded border border-hairline font-mono text-[10px] uppercase text-muted-foreground">Quick save</button>
+    <div className="grid grid-cols-2 gap-2"><button type="button" onClick={onBack} className="h-10 rounded border border-hairline font-mono text-[10px] uppercase text-foreground">Cancel</button><button type="button" onClick={() => onSave(legCount)} className="h-10 rounded bg-primary font-mono text-[10px] uppercase text-primary-foreground"><Check className="mr-1 inline size-3" /> Save strategy</button></div><button type="button" onClick={() => onSave(legCount)} className="h-9 w-full rounded border border-hairline font-mono text-[10px] uppercase text-muted-foreground">Quick save</button>
   </div>;
 }
 
-export function StrategyWorkspace({ initialRows, onExit }: { initialRows: Strategy[]; onExit: () => void }) {
+function StrategyDetail({ strategy, onBack, onLifecycle, onEdit, onMore }: { strategy: Strategy; onBack: () => void; onLifecycle: () => void; onEdit: () => void; onMore: () => void }) {
+  const action = strategy.status === "IN POS" ? "Exit" : strategy.status === "PAUSED" ? "Resume" : "Arm";
+  return <div className="space-y-3"><Back title="All strategies" onBack={onBack} />
+    <MobileCard title={strategy.name} meta={`#${strategy.id}`}>
+      <div className="p-3"><div className="flex items-center justify-between"><StatusBadge status={strategy.status} /><span className={`font-mono text-[15px] tabular-nums ${strategy.pnl > 0 ? "text-profit" : strategy.pnl < 0 ? "text-loss" : "text-muted-foreground"}`}>{strategy.pnl ? inr(strategy.pnl) : "—"}</span></div><div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">{[["Underlying", strategy.underlying], ["Broker", strategy.broker], ["Trigger", strategy.kind], ["Mode", strategy.horizon], ["Legs", String(strategy.legs)], ["Environment", "Sandbox"]].map(([label, value]) => <div key={label}><p className="font-mono text-[8px] uppercase text-muted-foreground">{label}</p><p className="mt-1 truncate font-mono text-[11px] text-foreground">{value}</p></div>)}</div></div>
+    </MobileCard>
+    <MobileCard title="Current configuration"><div className="p-3 font-mono text-[10px] leading-relaxed text-muted-foreground">Daily schedule · 09:20–15:15<br />Square-off · 15:20 · Strategy level<br />Strike routing · Nearest available</div></MobileCard>
+    <div className="grid grid-cols-[1fr_1fr_40px] gap-2"><button type="button" onClick={onEdit} className="inline-flex h-10 items-center justify-center gap-1 rounded border border-hairline font-mono text-[10px] uppercase text-foreground"><Pencil className="size-3" /> Edit</button><button type="button" onClick={onLifecycle} className={`inline-flex h-10 items-center justify-center gap-1 rounded border font-mono text-[10px] uppercase ${strategy.status === "IN POS" ? "border-loss/40 text-loss" : "border-primary/40 text-primary"}`}>{strategy.status === "IN POS" ? <LogOut className="size-3" /> : strategy.status === "PAUSED" ? <Play className="size-3" /> : <Pause className="size-3" />}{action}</button><button type="button" aria-label="More strategy actions" onClick={onMore} className="grid h-10 place-items-center rounded border border-hairline text-foreground"><Ellipsis className="size-4" /></button></div>
+  </div>;
+}
+
+function ConfirmDialog({ action, onCancel, onConfirm }: { action: ConfirmAction; onCancel: () => void; onConfirm: () => void }) {
+  const title = action.kind === "delete" ? "Delete strategy?" : action.kind === "exit-all" ? "Exit all strategies?" : "Exit strategy?";
+  const detail = action.kind === "exit-all" ? "All strategies currently in position will be squared off at market." : `${action.strategy?.name ?? "This strategy"} ${action.kind === "delete" ? "will be removed." : "will be squared off at market."}`;
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-background/75 p-4"><div role="dialog" aria-modal="true" aria-label={title} className="w-full max-w-sm rounded border border-hairline bg-surface p-4"><h2 className="font-mono text-[12px] font-semibold uppercase text-foreground">{title}</h2><p className="mt-2 font-mono text-[11px] leading-relaxed text-muted-foreground">{detail}</p><div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={onCancel} className="h-9 rounded border border-hairline font-mono text-[10px] uppercase text-foreground">Cancel</button><button type="button" onClick={onConfirm} className="h-9 rounded border border-loss/40 font-mono text-[10px] uppercase text-loss">Confirm</button></div></div></div>;
+}
+
+function ActionSheet({ strategy, onClose, onAction }: { strategy: Strategy; onClose: () => void; onAction: (action: "edit" | "analytics" | "clone" | "alerts" | "delete") => void }) {
+  const actions = [{ id: "edit", label: "Edit / configure", icon: Pencil }, { id: "analytics", label: "Analytics", icon: BarChart3 }, { id: "clone", label: "Clone", icon: Copy }, { id: "alerts", label: "Strategy alerts", icon: BellRing }, { id: "delete", label: "Delete", icon: Trash2 }] as const;
+  return <div className="fixed inset-0 z-50 flex items-end bg-background/75" onClick={onClose}><div role="dialog" aria-modal="true" aria-label="Strategy actions" className="w-full rounded-t-lg border border-hairline bg-surface p-3" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between border-b border-hairline pb-2"><div><p className="font-mono text-[9px] uppercase text-muted-foreground">Actions for</p><p className="truncate font-mono text-[12px] text-foreground">{strategy.name}</p></div><button type="button" aria-label="Close actions" onClick={onClose} className="grid size-9 place-items-center"><X className="size-4" /></button></div>{actions.map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => onAction(id)} className={`flex h-11 w-full items-center gap-3 border-b border-hairline px-1 font-mono text-[10px] uppercase last:border-0 ${id === "delete" ? "text-loss" : "text-foreground"}`}><Icon className="size-4" />{label}</button>)}</div></div>;
+}
+
+export function StrategyMonitor({ rows, onOpenAll, onOpen, onExit }: { rows: Strategy[]; onOpenAll: () => void; onOpen: (strategy: Strategy) => void; onExit: (strategy: Strategy) => void }) {
+  const ordered = [...rows].sort((a, b) => Number(b.status === "IN POS") - Number(a.status === "IN POS"));
+  return <MobileCard title="Strategy monitor" meta="Streaming"><div className="flex justify-end border-b border-hairline px-3 py-2"><button type="button" onClick={onOpenAll} className="font-mono text-[9px] uppercase text-primary">All strategies →</button></div>{ordered.slice(0, 6).map((strategy) => <div key={strategy.id} className="border-b border-hairline px-3 py-2.5 last:border-0"><div className="flex items-center gap-2"><StatusBadge status={strategy.status} /><div className="min-w-0 flex-1"><p className="truncate font-mono text-[11px] font-medium text-foreground">{strategy.name}</p><p className="font-mono text-[8px] text-muted-foreground">#{strategy.id} · {strategy.underlying} · SANDBOX</p></div><span className={`font-mono text-[10px] tabular-nums ${strategy.pnl > 0 ? "text-profit" : strategy.pnl < 0 ? "text-loss" : "text-muted-foreground"}`}>{strategy.pnl ? inr(strategy.pnl) : "—"}</span><button type="button" onClick={() => strategy.status === "IN POS" ? onExit(strategy) : onOpen(strategy)} className={`h-8 w-12 rounded border font-mono text-[8px] uppercase ${strategy.status === "IN POS" ? "border-loss/40 text-loss" : "border-hairline text-foreground"}`}>{strategy.status === "IN POS" ? "Exit" : "View"}</button></div></div>)}</MobileCard>;
+}
+
+export function StrategyWorkspace({ initialRows }: { initialRows: Strategy[] }) {
   const [rows, setRows] = useState(initialRows);
-  const [view, setView] = useState<"list" | "form" | "builder">("list");
-  const [selected, setSelected] = useState<Strategy | undefined>();
-  const [pendingDelete, setPendingDelete] = useState<Strategy | null>(null);
-  const saveForm = (strategy: Strategy) => { setSelected(strategy); if (rows.some((row) => row.id === strategy.id)) setRows((all) => all.map((row) => row.id === strategy.id ? strategy : row)); else setRows((all) => [strategy, ...all]); setView("builder"); };
-  const saveBuilder = () => { if (selected) setRows((all) => all.map((row) => row.id === selected.id ? { ...selected, legs: 4 } : row)); setView("list"); setSelected(undefined); };
-  if (view === "form") return <StrategyForm existing={selected} onCancel={() => { setView("list"); setSelected(undefined); }} onSave={saveForm} />;
-  if (view === "builder" && selected) return <LegBuilder strategy={selected} onBack={() => setView("form")} onSave={saveBuilder} />;
-  return <div className="space-y-3"><button type="button" onClick={() => { setSelected(undefined); setView("form"); }} className="inline-flex h-10 w-full items-center justify-center gap-2 rounded bg-primary font-mono text-[11px] uppercase text-primary-foreground"><Plus className="size-4" /> New strategy</button><MobileCard title="All strategies" meta={`${rows.length} total`}>
-    {rows.map((strategy) => <div key={strategy.id} className="border-b border-hairline px-3 py-2.5 last:border-0"><div className="flex min-w-0 items-center gap-2"><div className="min-w-0 flex-1"><p className="truncate font-mono text-[13px] font-medium text-foreground">{strategy.name}</p><p className="truncate font-mono text-[9px] text-muted-foreground">#{strategy.id} · {strategy.underlying} · {strategy.horizon}</p></div><span className="shrink-0 rounded border border-hairline px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">{strategy.status}</span></div><div className="mt-2 grid grid-cols-2 gap-2"><button type="button" onClick={() => { setSelected(strategy); setView("form"); }} className="inline-flex h-8 items-center justify-center gap-1 rounded border border-hairline font-mono text-[9px] uppercase text-foreground"><Pencil className="size-3" /> Edit / configure</button><button type="button" onClick={() => setPendingDelete(strategy)} className="inline-flex h-8 items-center justify-center gap-1 rounded border border-loss/40 font-mono text-[9px] uppercase text-loss"><Trash2 className="size-3" /> Delete</button></div></div>)}
-  </MobileCard>{pendingDelete ? <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4"><div role="dialog" aria-modal="true" aria-label="Confirm strategy deletion" className="w-full max-w-sm rounded border border-hairline bg-surface p-4"><h2 className="font-mono text-[12px] font-semibold uppercase text-foreground">Delete strategy?</h2><p className="mt-2 font-mono text-[11px] text-muted-foreground">{pendingDelete.name} will be removed from this preview.</p><div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setPendingDelete(null)} className="h-9 rounded border border-hairline font-mono text-[10px] uppercase text-foreground">Cancel</button><button type="button" onClick={() => { setRows((all) => all.filter((row) => row.id !== pendingDelete.id)); setPendingDelete(null); }} className="h-9 rounded border border-loss/40 font-mono text-[10px] uppercase text-loss">Delete</button></div></div></div> : null}<button type="button" onClick={onExit} className="sr-only">Close strategies</button></div>;
+  const [view, setView] = useState<StrategyView>("all");
+  const [selected, setSelected] = useState<Strategy>();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"ALL" | Strategy["status"]>("ALL");
+  const [sheet, setSheet] = useState(false);
+  const [confirm, setConfirm] = useState<ConfirmAction>();
+  const filtered = useMemo(() => rows.filter((row) => (filter === "ALL" || row.status === filter) && `${row.name} ${row.id} ${row.underlying}`.toLowerCase().includes(query.toLowerCase())), [filter, query, rows]);
+  const groups = groupByUnderlying(filtered);
+  const updateSelected = (next: Strategy) => { setRows((all) => all.map((row) => row.id === next.id ? next : row)); setSelected(next); };
+  const open = (strategy: Strategy) => { setSelected(strategy); setView("detail"); };
+  const lifecycle = () => { if (!selected) return; if (selected.status === "IN POS") { setConfirm({ kind: "exit", strategy: selected }); return; } updateSelected({ ...selected, status: selected.status === "PAUSED" ? "IDLE" : "PAUSED" }); };
+  const handleSheetAction = (action: "edit" | "analytics" | "clone" | "alerts" | "delete") => { setSheet(false); if (!selected) return; if (action === "edit") setView("form"); else if (action === "analytics") setView("analytics"); else if (action === "alerts") setView("alerts"); else if (action === "delete") setConfirm({ kind: "delete", strategy: selected }); else { const clone = { ...selected, id: Date.now(), name: `${selected.name} (Copy)`, status: "IDLE" as const, pnl: 0 }; setRows((all) => [clone, ...all]); setSelected(clone); setView("detail"); } };
+  const resolveConfirm = () => { if (!confirm) return; if (confirm.kind === "exit-all") setRows((all) => all.map((row) => row.status === "IN POS" ? { ...row, status: "IDLE", pnl: 0, legs: 0 } : row)); else if (confirm.kind === "delete" && confirm.strategy) { setRows((all) => all.filter((row) => row.id !== confirm.strategy?.id)); setSelected(undefined); setView("all"); } else if (confirm.strategy) { const next = { ...confirm.strategy, status: "IDLE" as const, pnl: 0, legs: 0 }; updateSelected(next); } setConfirm(undefined); };
+  if (view === "form") return <StrategyForm existing={selected} onCancel={() => setView(selected ? "detail" : "all")} onSave={(strategy) => { setSelected(strategy); setRows((all) => all.some((row) => row.id === strategy.id) ? all.map((row) => row.id === strategy.id ? strategy : row) : [strategy, ...all]); setView("builder"); }} />;
+  if (view === "builder" && selected) return <LegBuilder strategy={selected} onBack={() => setView("form")} onSave={(legCount) => { updateSelected({ ...selected, legs: legCount }); setView("detail"); }} />;
+  if ((view === "analytics" || view === "alerts") && selected) return <div className="space-y-3"><Back title={selected.name} onBack={() => setView("detail")} /><MobileCard title={view === "analytics" ? "Strategy analytics" : "Strategy alerts"} meta={`#${selected.id}`}><div className="space-y-3 p-3">{view === "analytics" ? <><div className="grid grid-cols-2 gap-2">{[["P&L today", selected.pnl ? inr(selected.pnl) : "—"], ["Open legs", String(selected.legs)], ["Win rate", "64.2%"], ["Max drawdown", "−₹1,240"]].map(([label, value]) => <div key={label} className="border border-hairline p-2"><p className="font-mono text-[8px] uppercase text-muted-foreground">{label}</p><p className="mt-1 font-mono text-[12px] text-foreground">{value}</p></div>)}</div><div className="h-28 border border-hairline bg-surface-2 p-3 font-mono text-[9px] text-muted-foreground">Intraday P&amp;L curve · 09:15–15:30</div></> : <>{["Entry and exit signals", "Order fills and rejections", "Risk threshold warnings"].map((label) => <Toggle key={label} label={label} initial />)}</>}</div></MobileCard></div>;
+  if (view === "detail" && selected) return <><StrategyDetail strategy={selected} onBack={() => setView("all")} onLifecycle={lifecycle} onEdit={() => setView("form")} onMore={() => setSheet(true)} />{sheet ? <ActionSheet strategy={selected} onClose={() => setSheet(false)} onAction={handleSheetAction} /> : null}{confirm ? <ConfirmDialog action={confirm} onCancel={() => setConfirm(undefined)} onConfirm={resolveConfirm} /> : null}</>;
+  return <div className="space-y-3"><div className="flex gap-2"><label className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded border border-hairline bg-surface px-3"><Search className="size-3.5 text-muted-foreground" /><input aria-label="Search strategies" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name, ID or underlying" className="min-w-0 flex-1 bg-transparent font-mono text-[10px] outline-none" /></label><button type="button" onClick={() => { setSelected(undefined); setView("form"); }} aria-label="New strategy" className="grid size-10 shrink-0 place-items-center rounded bg-primary text-primary-foreground"><Plus className="size-4" /></button></div><div className="flex gap-1.5 overflow-x-auto">{(["ALL", "IN POS", "IDLE", "PAUSED"] as const).map((item) => <button key={item} type="button" onClick={() => setFilter(item)} className={`shrink-0 rounded border px-2.5 py-2 font-mono text-[9px] ${filter === item ? "border-primary bg-primary text-primary-foreground" : "border-hairline bg-surface text-muted-foreground"}`}>{item}</button>)}<button type="button" onClick={() => setConfirm({ kind: "exit-all" })} className="ml-auto shrink-0 rounded border border-loss/40 px-2.5 font-mono text-[9px] text-loss">EXIT ALL</button></div>{groups.map(([underlying, group]) => <MobileCard key={underlying} title={underlying} meta={`${group.length} strategies`}>{group.map((strategy) => <div key={strategy.id} className="border-b border-hairline p-3 last:border-0"><button type="button" onClick={() => open(strategy)} className="flex w-full items-center gap-2 text-left"><StatusBadge status={strategy.status} /><div className="min-w-0 flex-1"><p className="truncate font-mono text-[11px] font-medium text-foreground">{strategy.name}</p><p className="font-mono text-[8px] text-muted-foreground">#{strategy.id} · {strategy.kind} · {strategy.horizon}</p></div><div className="text-right"><p className={`font-mono text-[11px] ${strategy.pnl > 0 ? "text-profit" : strategy.pnl < 0 ? "text-loss" : "text-muted-foreground"}`}>{strategy.pnl ? inr(strategy.pnl) : "—"}</p><span className="font-mono text-[8px] uppercase text-primary"><Eye className="mr-1 inline size-3" />View</span></div></button></div>)}</MobileCard>)}{groups.length === 0 ? <div className="border border-dashed border-hairline p-6 text-center font-mono text-[10px] text-muted-foreground">No strategies match this filter.</div> : null}{confirm ? <ConfirmDialog action={confirm} onCancel={() => setConfirm(undefined)} onConfirm={resolveConfirm} /> : null}</div>;
 }
 
 export function AccountWorkspace({ screen, onBack }: { screen: MobileScreen; onBack: () => void }) {
