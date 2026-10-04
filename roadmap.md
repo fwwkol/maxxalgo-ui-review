@@ -4,4 +4,5 @@
 - [x] Verified light/dark and phone renders in the live preview.
 - [x] Mobile application layout at /mobile (tab bar, stacked cards, exit confirmation).
 - [x] Add mobile strategy create, configure/edit, and delete workflows plus account settings, notifications, and broker screens.
+- [ ] Replace the mobile-only strategy workflow with the live Openbull desktop workflow: monitor → all strategies → view → lifecycle/configuration actions.
 - [ ] Recheck and complete all local terminal screens for desktop and Android-sized mobile layouts (typography, styleguide pages still lack mobile treatment).
