@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Mobile strategy navigation mirrors the live desktop workflow (monitor → all strategies → read-only detail → explicit actions) so task semantics stay consistent across form factors.

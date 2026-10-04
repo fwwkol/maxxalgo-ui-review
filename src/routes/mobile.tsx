@@ -21,7 +21,7 @@ import {
   type MobileTab,
 } from "@/components/terminal/MobileShell";
 import { MobileLogin } from "@/components/terminal/MobileLogin";
-import { AccountWorkspace, StrategyWorkspace, type MobileScreen } from "@/components/terminal/MobileManagementScreens";
+import { AccountWorkspace, StrategyMonitor, StrategyWorkspace, type MobileScreen } from "@/components/terminal/MobileManagementScreens";
 import {
   groupByStrategy,
   inr,
@@ -200,12 +200,13 @@ function ConfirmBar({
   );
 }
 
-function LiveTab({ onExit }: { onExit: (symbol: string) => void }) {
+function LiveTab({ onExit, onOpenStrategies }: { onExit: (symbol: string) => void; onOpenStrategies: () => void }) {
   const live = positions.slice(0, 3);
   return (
     <div className="space-y-3">
       <MarketStrip />
       <KpiRow />
+      <StrategyMonitor rows={strategies} onOpenAll={onOpenStrategies} onOpen={onOpenStrategies} onExit={(strategy) => onExit(strategy.name)} />
       <MobileCard title="Top movers" meta="Live">
         {live.map((p) => (
           <PositionCard key={p.symbol} p={p} onExit={onExit} />
@@ -235,7 +236,7 @@ function PositionsTab({ onExit }: { onExit: (symbol: string) => void }) {
 }
 
 function StrategiesTab() {
-  return <StrategyWorkspace initialRows={strategies} onExit={() => undefined} />;
+  return <StrategyWorkspace initialRows={strategies} />;
 }
 
 
@@ -490,7 +491,7 @@ function MobileLayoutPage() {
                   <AccountWorkspace screen={screen} onBack={() => setScreen(null)} />
                 ) : (
                   <>
-                    {tab === "Live" && <LiveTab onExit={setConfirm} />}
+                    {tab === "Live" && <LiveTab onExit={setConfirm} onOpenStrategies={() => setTab("Strategies")} />}
                     {tab === "Positions" && <PositionsTab onExit={setConfirm} />}
                     {tab === "Strategies" && <StrategiesTab />}
                     {tab === "More" && <MoreTab onOpen={setScreen} />}
