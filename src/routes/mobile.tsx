@@ -200,13 +200,13 @@ function ConfirmBar({
   );
 }
 
-function LiveTab({ onExit, onOpenStrategies }: { onExit: (symbol: string) => void; onOpenStrategies: () => void }) {
+function LiveTab({ onExit, onOpenStrategies, onOpenStrategy }: { onExit: (symbol: string) => void; onOpenStrategies: () => void; onOpenStrategy: (strategy: Strategy) => void }) {
   const live = positions.slice(0, 3);
   return (
     <div className="space-y-3">
       <MarketStrip />
       <KpiRow />
-      <StrategyMonitor rows={strategies} onOpenAll={onOpenStrategies} onOpen={onOpenStrategies} onExit={(strategy) => onExit(strategy.name)} />
+      <StrategyMonitor rows={strategies} onOpenAll={onOpenStrategies} onOpen={onOpenStrategy} onExit={(strategy) => onExit(strategy.name)} />
       <MobileCard title="Top movers" meta="Live">
         {live.map((p) => (
           <PositionCard key={p.symbol} p={p} onExit={onExit} />
@@ -235,8 +235,8 @@ function PositionsTab({ onExit }: { onExit: (symbol: string) => void }) {
   );
 }
 
-function StrategiesTab() {
-  return <StrategyWorkspace initialRows={strategies} />;
+function StrategiesTab({ initialStrategy }: { initialStrategy?: Strategy | undefined }) {
+  return <StrategyWorkspace initialRows={strategies} initialStrategy={initialStrategy} />;
 }
 
 
@@ -461,6 +461,7 @@ function MobileLayoutPage() {
   const [confirm, setConfirm] = useState<string | null>(null);
   const [signedIn, setSignedIn] = useState(false);
   const [screen, setScreen] = useState<Screen | null>(null);
+  const [mobileStrategy, setMobileStrategy] = useState<Strategy | undefined>();
 
   return (
     <div className="min-h-screen bg-surface-2">
@@ -491,9 +492,9 @@ function MobileLayoutPage() {
                   <AccountWorkspace screen={screen} onBack={() => setScreen(null)} />
                 ) : (
                   <>
-                    {tab === "Live" && <LiveTab onExit={setConfirm} onOpenStrategies={() => setTab("Strategies")} />}
+                    {tab === "Live" && <LiveTab onExit={setConfirm} onOpenStrategies={() => { setMobileStrategy(undefined); setTab("Strategies"); }} onOpenStrategy={(strategy) => { setMobileStrategy(strategy); setTab("Strategies"); }} />}
                     {tab === "Positions" && <PositionsTab onExit={setConfirm} />}
-                    {tab === "Strategies" && <StrategiesTab />}
+                    {tab === "Strategies" && <StrategiesTab initialStrategy={mobileStrategy} />}
                     {tab === "More" && <MoreTab onOpen={setScreen} />}
                   </>
                 )}
@@ -517,6 +518,7 @@ function MobileLayoutPage() {
 
               <MobileTabBar active={tab} onChange={(t) => {
                   setScreen(null);
+                  if (t !== "Strategies") setMobileStrategy(undefined);
                   setTab(t);
                 }}
                 tabs={tabs} />

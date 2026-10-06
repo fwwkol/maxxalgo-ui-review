@@ -46,7 +46,7 @@ function StatusBadge({ status }: { status: Strategy["status"] }) {
   return <span className={`shrink-0 rounded border px-1.5 py-0.5 font-mono text-[9px] ${statusClass[status]}`}>{status}</span>;
 }
 
-function StrategyForm({ existing, onCancel, onSave }: { existing?: Strategy; onCancel: () => void; onSave: (strategy: Strategy) => void }) {
+function StrategyForm({ existing, onCancel, onSave }: { existing?: Strategy | undefined; onCancel: () => void; onSave: (strategy: Strategy) => void }) {
   const [name, setName] = useState(existing?.name ?? "");
   const [kind, setKind] = useState<Strategy["kind"]>(existing?.kind ?? "BATCH");
   const [underlying, setUnderlying] = useState(existing?.underlying ?? "NIFTY");
@@ -111,10 +111,10 @@ export function StrategyMonitor({ rows, onOpenAll, onOpen, onExit }: { rows: Str
   return <MobileCard title="Strategy monitor" meta="Streaming"><div className="flex justify-end border-b border-hairline px-3 py-2"><button type="button" onClick={onOpenAll} className="font-mono text-[9px] uppercase text-primary">All strategies →</button></div>{ordered.slice(0, 6).map((strategy) => <div key={strategy.id} className="border-b border-hairline px-3 py-2.5 last:border-0"><div className="flex items-center gap-2"><StatusBadge status={strategy.status} /><div className="min-w-0 flex-1"><p className="truncate font-mono text-[11px] font-medium text-foreground">{strategy.name}</p><p className="font-mono text-[8px] text-muted-foreground">#{strategy.id} · {strategy.underlying} · SANDBOX</p></div><span className={`font-mono text-[10px] tabular-nums ${strategy.pnl > 0 ? "text-profit" : strategy.pnl < 0 ? "text-loss" : "text-muted-foreground"}`}>{strategy.pnl ? inr(strategy.pnl) : "—"}</span><button type="button" onClick={() => strategy.status === "IN POS" ? onExit(strategy) : onOpen(strategy)} className={`h-8 w-12 rounded border font-mono text-[8px] uppercase ${strategy.status === "IN POS" ? "border-loss/40 text-loss" : "border-hairline text-foreground"}`}>{strategy.status === "IN POS" ? "Exit" : "View"}</button></div></div>)}</MobileCard>;
 }
 
-export function StrategyWorkspace({ initialRows }: { initialRows: Strategy[] }) {
+export function StrategyWorkspace({ initialRows, initialStrategy }: { initialRows: Strategy[]; initialStrategy?: Strategy | undefined }) {
   const [rows, setRows] = useState(initialRows);
-  const [view, setView] = useState<StrategyView>("all");
-  const [selected, setSelected] = useState<Strategy>();
+  const [view, setView] = useState<StrategyView>(initialStrategy ? "detail" : "all");
+  const [selected, setSelected] = useState<Strategy | undefined>(initialStrategy);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"ALL" | Strategy["status"]>("ALL");
   const [sheet, setSheet] = useState(false);
